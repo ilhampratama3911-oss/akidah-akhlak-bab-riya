@@ -30,6 +30,20 @@ import { fadeIn, pageTransition } from './constants';
 // @ts-ignore
 import videoUrl from './video.mp4';
 
+const getDynamicVideoUrl = () => {
+  try {
+    const origin = window.location.origin;
+    let pathname = window.location.pathname;
+    if (pathname.endsWith('.html')) {
+      pathname = pathname.substring(0, pathname.lastIndexOf('/') + 1);
+    }
+    const base = pathname.endsWith('/') ? pathname : pathname + '/';
+    return `${origin}${base}video.mp4`;
+  } catch (e) {
+    return 'video.mp4';
+  }
+};
+
 type Screen = 'home' | 'menu' | 'video' | 'materi' | 'evaluasi' | 'kesimpulan' | 'absensi';
 
 export default function App() {
@@ -832,10 +846,17 @@ function VideoScreen({ onBack }: { onBack: () => void }) {
                   ? 'w-full h-full object-contain' 
                   : 'absolute -right-4 -bottom-6 w-[calc(100%+24px)] h-[calc(100%+28px)] max-w-none object-cover'
               }`}
-              src={videoUrl}
               controls
               playsInline
-            ></video>
+              preload="metadata"
+            >
+              <source src={getDynamicVideoUrl()} type="video/mp4" />
+              <source src={videoUrl} type="video/mp4" />
+              <source src="./video.mp4" type="video/mp4" />
+              <source src="/video.mp4" type="video/mp4" />
+              <source src="video.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
 
             {/* Float Exit Fullscreen button inside fullscreen wrapper */}
             {isFullscreen && (
