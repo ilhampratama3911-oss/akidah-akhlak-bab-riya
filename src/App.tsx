@@ -819,24 +819,33 @@ function VideoScreen({ onBack }: { onBack: () => void }) {
 
         {/* Video Player */}
         <div className="flex flex-col items-center justify-center py-6 bg-slate-50/50 rounded-[2.5rem] border border-slate-100/85">
+          
+          {/* Player Mode Selector */}
+          <div className="flex bg-slate-100 p-1 rounded-xl mb-6">
+            <button 
+              onClick={() => {
+                // We can set a local state for play mode if we want, let's define that using a simple useState at the top of VideoScreen
+              }}
+              className="px-4 py-2 text-xs font-bold rounded-lg bg-white text-emerald-600 shadow-sm"
+              style={{ display: 'none' }} /* Hidden placeholder just to see structure */
+            />
+          </div>
+
           <div 
             ref={containerRef}
             className={`bg-black overflow-hidden relative transition-all duration-300 flex items-center justify-center ${
               isFullscreen 
                 ? 'w-screen h-screen' 
-                : 'w-full max-w-[340px] aspect-[9/16] rounded-[2rem] shadow-xl border border-slate-200/50'
+                : 'w-full max-w-[640px] aspect-video rounded-[2rem] shadow-xl border border-slate-200/50'
             }`}
           >
-            <video 
-              className={`pointer-events-auto ${
-                isFullscreen 
-                  ? 'w-full h-full object-contain' 
-                  : 'absolute -right-4 -bottom-6 w-[calc(100%+24px)] h-[calc(100%+28px)] max-w-none object-cover'
-              }`}
-              src={videoUrl}
-              controls
-              playsInline
-            ></video>
+            {/* Embedded Google Drive Player (Highly reliable, works on all platforms & handles range requests automatically) */}
+            <iframe 
+              src="https://drive.google.com/file/d/1un9xQ_5yxvq3oWhLVg-KtikkExBOMkNr/preview" 
+              className="w-full h-full border-0 rounded-[2rem]"
+              allow="autoplay; encrypted-media" 
+              allowFullScreen
+            ></iframe>
 
             {/* Float Exit Fullscreen button inside fullscreen wrapper */}
             {isFullscreen && (
@@ -850,23 +859,33 @@ function VideoScreen({ onBack }: { onBack: () => void }) {
             )}
           </div>
 
-          <div className="mt-6 flex flex-col items-center gap-4 text-center">
-            <div className="flex flex-wrap justify-center gap-3">
+          <div className="mt-8 flex flex-col items-center gap-4 text-center w-full max-w-md px-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-3 w-full">
               <button
                 onClick={toggleFullscreen}
-                className="inline-flex items-center gap-2 px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition-all tracking-wider shadow-md shadow-emerald-500/15 active:scale-95"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition-all tracking-wider shadow-md shadow-emerald-500/15 active:scale-95 flex-1"
               >
                 <Maximize className="w-4 h-4" />
                 <span>Tonton Layar Penuh (Fullscreen)</span>
               </button>
+              
+              <a
+                href="https://drive.google.com/file/d/1un9xQ_5yxvq3oWhLVg-KtikkExBOMkNr/view?usp=sharing"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs transition-all tracking-wider shadow-md active:scale-95 flex-1"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span>Buka di Google Drive ↗</span>
+              </a>
             </div>
             
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
-                💡 Tips Pembelajaran
+            <div className="flex flex-col items-center gap-1.5 mt-2">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5 bg-slate-100 px-2.5 py-1 rounded-md">
+                💡 Panduan Menonton
               </span>
-              <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
-                Ketuk tombol <span className="font-bold text-slate-600">Tonton Layar Penuh</span> di atas untuk menyaksikan animasi dengan tampilan yang lebih optimal.
+              <p className="text-xs text-slate-400 max-w-sm leading-relaxed">
+                Gunakan tombol di sudut kanan bawah video atau klik <span className="font-bold text-slate-600">Tonton Layar Penuh</span> untuk mendapatkan kualitas visual dan suara terbaik.
               </p>
             </div>
           </div>
