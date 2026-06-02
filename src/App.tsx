@@ -27,6 +27,8 @@ import {
 } from 'lucide-react';
 import { cn } from './lib/utils';
 import { fadeIn, pageTransition } from './constants';
+// @ts-ignore
+import videoUrl from './video.mp4';
 
 type Screen = 'home' | 'menu' | 'video' | 'materi' | 'evaluasi' | 'kesimpulan' | 'absensi';
 
@@ -830,7 +832,7 @@ function VideoScreen({ onBack }: { onBack: () => void }) {
                   ? 'w-full h-full object-contain' 
                   : 'absolute -right-4 -bottom-6 w-[calc(100%+24px)] h-[calc(100%+28px)] max-w-none object-cover'
               }`}
-              src={`${(import.meta as any).env.BASE_URL}video.mp4`}
+              src={videoUrl}
               controls
               playsInline
             ></video>
