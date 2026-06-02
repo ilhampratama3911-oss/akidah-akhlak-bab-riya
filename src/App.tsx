@@ -14,6 +14,7 @@ import {
   ChevronLeft, 
   Home as HomeIcon,
   Play,
+  Pause,
   ArrowRight,
   Info,
   Github,
@@ -781,6 +782,9 @@ function AbsensiScreen({ onBack }: { onBack: () => void }) {
 function VideoScreen({ onBack }: { onBack: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [currentSrc, setCurrentSrc] = useState(videoUrl);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const toggleFullscreen = () => {
     if (!containerRef.current) return;
@@ -796,6 +800,31 @@ function VideoScreen({ onBack }: { onBack: () => void }) {
       }).catch((err) => {
         console.error("Error attempting to exit fullscreen:", err);
       });
+    }
+  };
+
+  const handlePlayPause = () => {
+    if (!videoRef.current) return;
+    if (isPlaying) {
+      videoRef.current.pause();
+    } else {
+      videoRef.current.play().catch((err) => {
+        console.error("Failed to play video:", err);
+      });
+    }
+  };
+
+  const handleVideoError = () => {
+    console.warn("Video element failed to load with currentSrc:", currentSrc);
+    if (currentSrc === videoUrl) {
+      console.log("Fallback 1: trying getDynamicVideoUrl()");
+      setCurrentSrc(getDynamicVideoUrl());
+    } else if (currentSrc === getDynamicVideoUrl()) {
+      console.log("Fallback 2: trying flat relative video.mp4");
+      setCurrentSrc("video.mp4");
+    } else if (currentSrc === "video.mp4") {
+      console.log("Fallback 3: trying root relative /video.mp4");
+      setCurrentSrc("/video.mp4");
     }
   };
 
@@ -841,22 +870,32 @@ function VideoScreen({ onBack }: { onBack: () => void }) {
             }`}
           >
             <video 
-              className={`pointer-events-auto ${
+              ref={videoRef}
+              src={currentSrc}
+              className={`pointer-events-auto w-full h-full ${
                 isFullscreen 
-                  ? 'w-full h-full object-contain' 
-                  : 'absolute -right-4 -bottom-6 w-[calc(100%+24px)] h-[calc(100%+28px)] max-w-none object-cover'
+                  ? 'object-contain' 
+                  : 'absolute top-0 left-0 object-cover scale-[1.15]'
               }`}
               controls
               playsInline
-              preload="metadata"
-            >
-              <source src={getDynamicVideoUrl()} type="video/mp4" />
-              <source src={videoUrl} type="video/mp4" />
-              <source src="./video.mp4" type="video/mp4" />
-              <source src="/video.mp4" type="video/mp4" />
-              <source src="video.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
+              preload="auto"
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              onError={handleVideoError}
+            />
+
+            {/* Central Play Overlay */}
+            {!isPlaying && (
+              <div 
+                onClick={handlePlayPause}
+                className="absolute inset-0 bg-black/30 hover:bg-black/45 transition-colors flex items-center justify-center cursor-pointer z-10"
+              >
+                <div className="w-16 h-16 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center backdrop-blur-md transition-all shadow-lg border border-white/20 hover:scale-105 active:scale-95">
+                  <Play className="w-8 h-8 fill-white ml-1" />
+                </div>
+              </div>
+            )}
 
             {/* Float Exit Fullscreen button inside fullscreen wrapper */}
             {isFullscreen && (
