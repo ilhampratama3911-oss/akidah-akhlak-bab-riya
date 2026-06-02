@@ -830,7 +830,7 @@ function VideoScreen({ onBack }: { onBack: () => void }) {
                   ? 'w-full h-full object-contain' 
                   : 'absolute -right-4 -bottom-6 w-[calc(100%+24px)] h-[calc(100%+28px)] max-w-none object-cover'
               }`}
-              src="/video.mp4"
+              src={`${(import.meta as any).env.BASE_URL}video.mp4`}
               controls
               playsInline
             ></video>
