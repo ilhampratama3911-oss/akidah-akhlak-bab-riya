@@ -31,20 +31,6 @@ import { fadeIn, pageTransition } from './constants';
 // @ts-ignore
 import videoUrl from './video.mp4';
 
-const getDynamicVideoUrl = () => {
-  try {
-    const origin = window.location.origin;
-    let pathname = window.location.pathname;
-    if (pathname.endsWith('.html')) {
-      pathname = pathname.substring(0, pathname.lastIndexOf('/') + 1);
-    }
-    const base = pathname.endsWith('/') ? pathname : pathname + '/';
-    return `${origin}${base}video.mp4`;
-  } catch (e) {
-    return 'video.mp4';
-  }
-};
-
 type Screen = 'home' | 'menu' | 'video' | 'materi' | 'evaluasi' | 'kesimpulan' | 'absensi';
 
 export default function App() {
@@ -64,10 +50,10 @@ export default function App() {
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-slate-800 mb-4 tracking-tight">
               MEDIA PEMBELAJARAN <br />
-              <span className="text-emerald-600">Cara Menghindari Perilaku Tercela (Riya')</span>
+              <span className="text-emerald-600">BAB RIYA'</span>
             </h1>
-            <p className="text-lg text-slate-600 max-w-md mb-10 leading-relaxed">
-              Mengenal dan memahami dalil naqli dari riya', pengertian riya', sebab-sebab riya', dampak negatif riya', cara menghindari sifat riya.
+            <p className="text-lg text-slate-600 max-w-xl mb-10 leading-relaxed">
+              Mengenal dan memahami pengertian riya', Ciri-ciri orang yang riya', bahaya dampak negatif dari sifat riya', Sebab-sebab timbulnya sifat riya', Cara menghindari sifat riya'
             </p>
             <button 
               id="start-button"
@@ -782,9 +768,6 @@ function AbsensiScreen({ onBack }: { onBack: () => void }) {
 function VideoScreen({ onBack }: { onBack: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [currentSrc, setCurrentSrc] = useState(getDynamicVideoUrl());
-  const [isPlaying, setIsPlaying] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
 
   const toggleFullscreen = () => {
     if (!containerRef.current) return;
@@ -803,31 +786,6 @@ function VideoScreen({ onBack }: { onBack: () => void }) {
     }
   };
 
-  const handlePlayPause = () => {
-    if (!videoRef.current) return;
-    if (isPlaying) {
-      videoRef.current.pause();
-    } else {
-      videoRef.current.play().catch((err) => {
-        console.error("Failed to play video:", err);
-      });
-    }
-  };
-
-  const handleVideoError = () => {
-    console.warn("Video element failed to load with currentSrc:", currentSrc);
-    if (currentSrc === getDynamicVideoUrl()) {
-      console.log("Fallback 1: trying videoUrl (Vite Asset)");
-      setCurrentSrc(videoUrl);
-    } else if (currentSrc === videoUrl) {
-      console.log("Fallback 2: trying relative video.mp4");
-      setCurrentSrc("video.mp4");
-    } else if (currentSrc === "video.mp4") {
-      console.log("Fallback 3: trying root /video.mp4");
-      setCurrentSrc("/video.mp4");
-    }
-  };
-
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
@@ -837,12 +795,6 @@ function VideoScreen({ onBack }: { onBack: () => void }) {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
   }, []);
-
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.load();
-    }
-  }, [currentSrc]);
 
   return (
     <motion.div {...fadeIn} className="max-w-4xl mx-auto py-12 px-4">
@@ -876,33 +828,15 @@ function VideoScreen({ onBack }: { onBack: () => void }) {
             }`}
           >
             <video 
-              key={currentSrc}
-              ref={videoRef}
-              src={currentSrc}
-              className={`pointer-events-auto w-full h-full ${
+              className={`pointer-events-auto ${
                 isFullscreen 
-                  ? 'object-contain' 
-                  : 'absolute top-0 left-0 object-cover scale-[1.15]'
+                  ? 'w-full h-full object-contain' 
+                  : 'absolute -right-4 -bottom-6 w-[calc(100%+24px)] h-[calc(100%+28px)] max-w-none object-cover'
               }`}
+              src={videoUrl}
               controls
               playsInline
-              preload="auto"
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-              onError={handleVideoError}
-            />
-
-            {/* Central Play Overlay */}
-            {!isPlaying && (
-              <div 
-                onClick={handlePlayPause}
-                className="absolute inset-0 bg-black/30 hover:bg-black/45 transition-colors flex items-center justify-center cursor-pointer z-10"
-              >
-                <div className="w-16 h-16 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center backdrop-blur-md transition-all shadow-lg border border-white/20 hover:scale-105 active:scale-95">
-                  <Play className="w-8 h-8 fill-white ml-1" />
-                </div>
-              </div>
-            )}
+            ></video>
 
             {/* Float Exit Fullscreen button inside fullscreen wrapper */}
             {isFullscreen && (
