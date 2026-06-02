@@ -782,7 +782,7 @@ function AbsensiScreen({ onBack }: { onBack: () => void }) {
 function VideoScreen({ onBack }: { onBack: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [currentSrc, setCurrentSrc] = useState(videoUrl);
+  const [currentSrc, setCurrentSrc] = useState(getDynamicVideoUrl());
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -816,14 +816,14 @@ function VideoScreen({ onBack }: { onBack: () => void }) {
 
   const handleVideoError = () => {
     console.warn("Video element failed to load with currentSrc:", currentSrc);
-    if (currentSrc === videoUrl) {
-      console.log("Fallback 1: trying getDynamicVideoUrl()");
-      setCurrentSrc(getDynamicVideoUrl());
-    } else if (currentSrc === getDynamicVideoUrl()) {
-      console.log("Fallback 2: trying flat relative video.mp4");
+    if (currentSrc === getDynamicVideoUrl()) {
+      console.log("Fallback 1: trying videoUrl (Vite Asset)");
+      setCurrentSrc(videoUrl);
+    } else if (currentSrc === videoUrl) {
+      console.log("Fallback 2: trying relative video.mp4");
       setCurrentSrc("video.mp4");
     } else if (currentSrc === "video.mp4") {
-      console.log("Fallback 3: trying root relative /video.mp4");
+      console.log("Fallback 3: trying root /video.mp4");
       setCurrentSrc("/video.mp4");
     }
   };
@@ -837,6 +837,12 @@ function VideoScreen({ onBack }: { onBack: () => void }) {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
   }, []);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.load();
+    }
+  }, [currentSrc]);
 
   return (
     <motion.div {...fadeIn} className="max-w-4xl mx-auto py-12 px-4">
@@ -870,6 +876,7 @@ function VideoScreen({ onBack }: { onBack: () => void }) {
             }`}
           >
             <video 
+              key={currentSrc}
               ref={videoRef}
               src={currentSrc}
               className={`pointer-events-auto w-full h-full ${
